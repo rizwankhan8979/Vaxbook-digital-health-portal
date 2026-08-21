@@ -1,11 +1,4 @@
-/* ==========================================================================
-   VaxBook Digital Vaccination System - Core Application JavaScript Logic
-   Gateway API Base URL: http://localhost:8080
-   30 Authorized Vaccines Catalog & Instant Vial Authenticity Pop-Up Modal
-   Cascading State -> District -> Auto Pincode Suggestion Widget
-   ========================================================================== */
 
-// Use the same host the frontend was loaded from, default to localhost for local dev.
 const GATEWAY_URL = (function(){
     try {
         const host = window.location.hostname || 'localhost';
@@ -23,10 +16,8 @@ const GATEWAY_URL = (function(){
 // Global State
 let currentUser = null;
 let activeCategory = 'ALL';
-// Backend availability flag (set after a quick health check)
 let BACKEND_AVAILABLE = true;
 
-// CASCADING STATE -> DISTRICT -> AUTO PINCODE MAP
 const STATE_DISTRICT_PINCODE_MAP = {
     "Delhi": {
         "Central Delhi": "110001",
@@ -48,15 +39,11 @@ const STATE_DISTRICT_PINCODE_MAP = {
     }
 };
 
-/// DYNAMIC BACKEND REGISTRIES (Populated 100% via API Gateway from MySQL DB)
 let VACCINE_CATALOG = [];
 let CENTERS_REGISTRY = [];
 let DOCTORS_REGISTRY = [];
 const VIAL_SAMPLE_DATABASE = {};
 
-// APP INITIALIZATION COMPLETE
-
-// INITIALIZE APP SAFELY
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
@@ -65,17 +52,13 @@ if (document.readyState === 'loading') {
 
 function initApp() {
     checkSavedAuth();
-    // Render catalog and centers immediately for sub-second UI response
     renderVaccineCatalog(true);
     renderCentersList('', true);
     setupModalClosingControls();
     handleHashRouting();
-
-    // Check backend health asynchronously without blocking UI startup
     checkBackendHealth();
 }
 
-// Simple backend health check to detect if API gateway is reachable.
 function checkBackendHealth(timeoutMs = 3000) {
     return new Promise((resolve) => {
         if (!GATEWAY_URL) {
@@ -87,11 +70,9 @@ function checkBackendHealth(timeoutMs = 3000) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-        // Target valid gateway route predicate (/vaccine/getAll)
         fetch(GATEWAY_URL + '/vaccine/getAll', { signal: controller.signal })
             .then(res => {
                 clearTimeout(timer);
-                // Reachable if response is received from server
                 BACKEND_AVAILABLE = !!(res && (res.ok || res.status > 0));
                 resolve();
             })
@@ -114,7 +95,6 @@ function checkBackendHealth(timeoutMs = 3000) {
     });
 }
 
-// AUTO PINCODE & CASCADING STATE-DISTRICT HANDLERS
 function onStateChange() {
     const stateVal = document.getElementById('search-state').value;
     const districtSelect = document.getElementById('search-district');
@@ -160,7 +140,6 @@ function searchSlots() {
     scrollToSection('centers');
 }
 
-// LISTEN FOR URL HASH ROUTING CHANGES
 window.addEventListener('hashchange', () => handleHashRouting(false));
 
 function handleHashRouting(isInitialLoad = true) {
@@ -174,7 +153,6 @@ function handleHashRouting(isInitialLoad = true) {
         closeAllModals();
         showDashTab('bookings');
     } else if (!isInitialLoad) {
-        // Only scroll when user explicitly clicked a link after page was already loaded
         closeAllModals();
         const targetId = hash.replace('#', '');
         scrollToSection(targetId);
@@ -186,7 +164,6 @@ function scrollToSection(id) {
     if (elem) elem.scrollIntoView({ behavior: 'smooth' });
 }
 
-// SETUP MODAL CLOSING CONTROLS
 function setupModalClosingControls() {
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
@@ -238,12 +215,11 @@ function getVaccineCategory(name) {
     if (name.includes('shingles') || name.includes('shingrix') || name.includes('tdap') || name.includes('hpv') || name.includes('gardasil') || name.includes('twinrix') || name.includes('varicella') || name.includes('chickenpox') || name.includes('dukoral') || name.includes('cholera')) {
         return 'SENIOR';
     }
-    return 'COVID'; // default fallback
+    return 'COVID'; 
 }
 
 const DEFAULT_VACCINE_SVG = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22400%22%20viewBox%3D%220%200%20600%20400%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f0f9ff%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22160%22%20r%3D%2265%22%20fill%3D%22%230284c7%22%20opacity%3D%220.15%22%2F%3E%3Cpath%20d%3D%22M285%20110h30v70h-30z%22%20fill%3D%22%230284c7%22%2F%3E%3Cpath%20d%3D%22M275%20100h50v10h-50zM295%20180h10v30h-10z%22%20fill%3D%22%230369a1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%22275%22%20font-family%3D%22sans-serif%22%20font-size%3D%2220%22%20font-weight%3D%22bold%22%20fill%3D%22%230369a1%22%20text-anchor%3D%22middle%22%3EVaxBook%20Authorized%20Product%3C%2Ftext%3E%3C%2Fsvg%3E';
 
-// RENDER VACCINE CATALOG FROM BACKEND MYSQL DATABASE WITH FALLBACK
 function renderVaccineCatalog(forceFetch = false) {
     const container = document.getElementById('vaccine-cards-grid');
     if (!container) return;
@@ -303,7 +279,6 @@ function renderVaccineCatalog(forceFetch = false) {
         });
 }
 
-// CATEGORY FILTER TABS
 function filterCategory(cat, evt) {
     activeCategory = cat;
     document.querySelectorAll('#category-tabs-container .tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -321,7 +296,6 @@ function filterCategory(cat, evt) {
     renderVaccineCatalog(false);
 }
 
-// RENDER CENTERS LIST FROM BACKEND MYSQL DATABASE WITH FALLBACK
 function renderCentersList(filterQuery = '', forceFetch = false) {
     const container = document.getElementById('centers-cards-grid');
     if (!container) return;
@@ -379,7 +353,7 @@ function renderCentersList(filterQuery = '', forceFetch = false) {
     });
 }
 
-// ABOUT VACCINE MODAL FROM BACKEND
+
 function openAboutVaccineModal(vaccineId, updateHash = true) {
     if (updateHash) {
         window.history.pushState("", document.title, window.location.pathname + "#vaccine-detail-" + vaccineId);
@@ -478,7 +452,6 @@ function openAboutVaccineModal(vaccineId, updateHash = true) {
         });
 }
 
-// GENERATE BOTTLE QR MODAL
 function generateBottleQrModal(vialNo, vaccineName) {
     document.getElementById('qr-vial-number').innerText = vialNo;
     document.getElementById('qr-vial-name').innerText = vaccineName;
@@ -502,7 +475,6 @@ function generateBottleQrModal(vialNo, vaccineName) {
     document.getElementById('modal-bottle-qr').classList.remove('hidden');
 }
 
-// UNIVERSAL VIAL VERIFICATION
 function searchVialByInput() {
     const inputField = document.getElementById('vial-serial-input');
     const inputVal = inputField ? inputField.value.trim() : '';
@@ -557,8 +529,6 @@ function renderVialPopUpModal(vialNo) {
         });
 }
 
-// OPEN SLOT BOOKING
-// USER BOOKING PERSISTENCE HELPERS
 function getUserBookings() {
     if (!currentUser || !currentUser.email) return [];
     const key = 'vaxbook_bookings_' + currentUser.email;
@@ -815,7 +785,7 @@ function finalizeSlotBooking(paymentMode = 'FREE') {
             amount: pendingBooking.price || 250
         };
 
-        // Call VaccinePaymentGateway to create backend order FIRST (before booking slot)
+      
         fetch(`${GATEWAY_URL}/api/payment/create-order`, {
             method: 'POST',
             headers: headers,
@@ -841,7 +811,7 @@ function finalizeSlotBooking(paymentMode = 'FREE') {
                 "description": `Slot Fee for ${pendingBooking.vaccineName}`,
                 "order_id": razorpayOrderId,
                 "handler": function (response) {
-                    // Payment SUCCESS! Now book appointment and update backend
+                  
                     bookBackendAppointment()
                         .then(() => {
                             const payId = response.razorpay_payment_id || ('pay_' + Math.random().toString(36).substring(2, 12));
@@ -878,7 +848,6 @@ function finalizeSlotBooking(paymentMode = 'FREE') {
     }
 }
 
-// PASSWORD EYE TOGGLE HELPER
 function togglePasswordVisibility(inputId, iconId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById(iconId);
@@ -895,7 +864,6 @@ function togglePasswordVisibility(inputId, iconId) {
     }
 }
 
-// CLEAN AUTH & MULTI-STEP OTP REGISTER LOGIC
 function openLoginModal() {
     closeAllModals();
     const modal = document.getElementById('modal-login');
@@ -930,7 +898,6 @@ function toggleAuthMode(mode) {
     }
 }
 
-// OFFICIAL CUSTOM NOTIFICATION ALERT SYSTEM
 let customAlertCallback = null;
 
 function showCustomAlert(message, title = 'Official System Notice', type = 'success', callback = null) {
@@ -981,8 +948,6 @@ function closeCustomAlert() {
         cb();
     }
 }
-
-// FORGOT PASSWORD FLOW
 function requestForgotPasswordOtp() {
     const email = document.getElementById('forgot-email').value.trim();
     console.log('[DEBUG] requestForgotPasswordOtp called for', email);
@@ -1055,7 +1020,7 @@ function handleForgotPasswordSubmit() {
     });
 }
 
-// STEP 1: SEND OTP TO EMAIL VIA NOTIFICATION SERVICE
+
 function sendRegistrationOtp() {
     const emailInput = document.getElementById('reg-email');
     const email = emailInput ? emailInput.value.trim() : '';
@@ -1100,7 +1065,6 @@ function revealOtpStep(email, sendBtn) {
     if (verifyStep) verifyStep.classList.remove('hidden');
 }
 
-// STEP 2: VERIFY OTP & LOCK EMAIL
 function verifyRegistrationOtp() {
     const email = document.getElementById('reg-email').value.trim();
     const otpVal = document.getElementById('reg-otp-input').value.trim();
@@ -1153,7 +1117,6 @@ function lockEmailAndShowProfile() {
     if (profileStep) profileStep.classList.remove('hidden');
 }
 
-// SUBMIT REGISTER TO BACKEND USER SERVICE
 function handleRegisterSubmit() {
     const email = document.getElementById('reg-email') ? document.getElementById('reg-email').value.trim() : '';
     const name = document.getElementById('reg-name') ? document.getElementById('reg-name').value.trim() : '';
@@ -1218,7 +1181,6 @@ function handleRegisterSubmit() {
     });
 }
 
-// DELETE USER PROFILE FROM BACKEND MYSQL DATABASE
 function deleteUserProfile() {
     if (!currentUser || !currentUser.email) {
         showCustomAlert('No active user profile logged in.', 'Account Delete Error', 'danger');
@@ -1255,7 +1217,6 @@ function deleteUserProfile() {
     });
 }
 
-// OPEN USER PROFILE DETAILED MODAL
 function openUserProfileModal() {
     if (!currentUser) return;
 
@@ -1313,7 +1274,6 @@ function openUserProfileModal() {
         .catch(() => {});
 }
 
-// USER DROPDOWN MENU TOGGLE
 function toggleUserDropdown(e) {
     if (e) e.stopPropagation();
     const menu = document.getElementById('user-dropdown-menu');
@@ -1325,7 +1285,7 @@ function closeUserDropdown() {
     if (menu) menu.classList.add('hidden');
 }
 
-// Close dropdown when clicking outside
+
 window.addEventListener('click', (e) => {
     const container = document.getElementById('user-profile-badge');
     if (container && !container.contains(e.target)) {
@@ -1333,7 +1293,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// LOGIN SUBMIT TO BACKEND USER SERVICE
+
 function handleLoginSubmit(e) {
     e.preventDefault();
     const _emailField = document.getElementById('login-username');
@@ -1500,7 +1460,7 @@ window.addEventListener('click', (e) => {
 
 
 
-// DASHBOARD TABS RENDERER
+
 function showDashTab(tabName) {
     const dashSection = document.getElementById('dashboard');
     if (dashSection) dashSection.classList.remove('hidden');
@@ -1533,7 +1493,7 @@ function showDashTab(tabName) {
                 status: b.status || 'CONFIRMED'
             }));
 
-            // Fallback to local storage if backend has no bookings
+            
             if (bookings.length === 0) {
                 const local = getUserBookings();
                 if (local.length > 0) {
@@ -2217,7 +2177,7 @@ function handleAdministerDoseSubmit(e) {
         vialNumber: vialSerial
     };
 
-    // 1. Call real backend DoseService via API Gateway FIRST
+   
     fetch(`${GATEWAY_URL}/dose/take`, {
         method: 'POST',
         headers: {
