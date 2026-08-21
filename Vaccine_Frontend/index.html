@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaxBook - Online Vaccination Booking & Certificate System</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome Icons (Non-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- Non-blocking SDKs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+</head>
+<body>
+
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="announcement-bar">
+        <span><i class="fa-solid fa-shield-halved"></i> Official National Vaccination & Digital Certificate Portal | Quick 1-Click Booking</span>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="brand-title">
+                <h1><i class="fa-solid fa-staff-snake text-primary"></i> VaxBook</h1>
+                <span class="brand-tagline">Digital Vaccination System</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#home" class="active"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="#vaccines"><i class="fa-solid fa-syringe"></i> Vaccine Catalog</a>
+                <a href="#centers"><i class="fa-solid fa-hospital"></i> Centers & Doctors</a>
+                <a href="#vial-verifier"><i class="fa-solid fa-barcode"></i> Vial Verifier</a>
+                <a href="#dashboard" id="nav-dashboard" class="hidden"><i class="fa-solid fa-user-gear"></i> Patient Hub</a>
+            </nav>
+            <div class="user-action-area">
+                <button id="btn-login-modal" class="btn btn-outline" onclick="openLoginModal()"><i class="fa-solid fa-right-to-bracket"></i> Login / Register</button>
+                <div id="user-profile-badge" class="user-profile-dropdown-container hidden">
+                    <button class="user-avatar-btn" onclick="toggleUserDropdown(event)">
+                        <i class="fa-solid fa-circle-user text-primary" style="font-size:1.4rem;"></i>
+                        <span id="user-display-name" class="user-display-name">User</span>
+                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div id="user-dropdown-menu" class="user-dropdown-menu hidden">
+                        <div class="dropdown-header">
+                            <h4 id="dropdown-user-name">User</h4>
+                            <p id="dropdown-user-email">user@vaxbook.com</p>
+                        </div>
+                        <hr class="dropdown-divider">
+                        <a href="javascript:void(0)" onclick="if(event)event.stopPropagation(); closeUserDropdown(); openUserProfileModal();" class="dropdown-item">
+                            <i class="fa-solid fa-id-card text-primary"></i> My Profile & Account Details
+                        </a>
+                        <a href="javascript:void(0)" onclick="if(event)event.stopPropagation(); closeUserDropdown(); showMyBookingsModal();" class="dropdown-item">
+                            <i class="fa-solid fa-calendar-check text-primary"></i> My Bookings & Certificates
+                        </a>
+
+                        <div id="dropdown-admin-option" class="hidden">
+                            <a href="javascript:void(0)" onclick="closeUserDropdown(); toggleAdminPanel();" class="dropdown-item">
+                                <i class="fa-solid fa-user-shield text-warning"></i> Admin Command Center
+                            </a>
+                        </div>
+                        <hr class="dropdown-divider">
+                        <a href="javascript:void(0)" onclick="closeUserDropdown(); logout();" class="dropdown-item dropdown-logout-item">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+                        </a>
+                    </div>
+                </div>
+                <!-- ADMIN TOGGLE (STRICTLY HIDDEN FOR NORMAL USERS) -->
+                <button id="btn-admin-toggle" class="btn btn-warning hidden" onclick="toggleAdminPanel()"><i class="fa-solid fa-user-shield"></i> Admin Command Panel</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER & QUICK SEARCH -->
+    <section id="home" class="hero-section">
+        <div class="hero-content">
+            <h2>VaxBook: Online Booking & Certificate System</h2>
+            <p>Search vaccination centers, book slots, verify authentic vaccine vials, and download your official government-aligned vaccination certificate.</p>
+            
+            <!-- QUICK SLOT SEARCH WIDGET (DARK GLASSMORPHIC STYLING WITH AUTO-SUGGEST) -->
+            <div class="quick-search-card">
+                <h3><i class="fa-solid fa-magnifying-glass-location"></i> Quick Slot Search Near You</h3>
+                <div class="search-inputs-grid">
+                    <select id="search-state" onchange="onStateChange()">
+                        <option value="">-- Select State --</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                    </select>
+                    <select id="search-district" onchange="onDistrictChange()">
+                        <option value="">-- Select District / City --</option>
+                    </select>
+                    <input type="text" id="search-pincode" placeholder="Auto Pincode (e.g. 110001)">
+                    <button class="btn btn-emerald" onclick="searchSlots()"><i class="fa-solid fa-search"></i> Search Slots</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- UNIVERSAL VIAL VERIFIER SEARCH BAR SECTION -->
+    <section id="vial-verifier" class="section-container bg-light">
+        <div class="section-header text-center">
+            <h2><i class="fa-solid fa-shield-circle-check text-emerald"></i> Universal Vial Authenticity & Stock Verifier</h2>
+            <p>Ensure 100% safety & trust. Enter the Vial Serial Number printed on the bottle label to verify genuine status and live doses remaining.</p>
+        </div>
+        <div class="verifier-card" style="max-width: 700px; margin: 0 auto;">
+            <div class="input-group">
+                <input type="text" id="vial-serial-input" placeholder="e.g. VIL-COV-2026-001 or VIL-POL-2026-008">
+                <button class="btn btn-emerald" onclick="searchVialByInput()"><i class="fa-solid fa-magnifying-glass"></i> Verify Vial Details</button>
+            </div>
+            <p class="text-muted text-center mt-2" style="font-size:0.85rem;">Tip: You can also scan bottle QR codes with your mobile phone camera!</p>
+        </div>
+    </section>
+
+    <!-- E-COMMERCE STYLE VACCINE CATALOG CATEGORIES -->
+    <section id="vaccines" class="section-container">
+        <div class="section-header text-center">
+            <h2><i class="fa-solid fa-layer-group text-primary"></i> National Immunization Catalog</h2>
+            <p>Verified digital registry of government-approved vaccine formulations and health drives.</p>
+        </div>
+
+        <!-- CATEGORY TABS -->
+        <div class="category-tabs" id="category-tabs-container">
+            <button class="tab-btn active" onclick="filterCategory('ALL')"><i class="fa-solid fa-border-all"></i> All Vaccines</button>
+            <button class="tab-btn" onclick="filterCategory('COVID')"><i class="fa-solid fa-virus-covid"></i> COVID-19</button>
+            <button class="tab-btn" onclick="filterCategory('CHILD')"><i class="fa-solid fa-baby"></i> Pediatric & Child</button>
+            <button class="tab-btn" onclick="filterCategory('FLU')"><i class="fa-solid fa-lungs"></i> Influenza & Respiratory</button>
+            <button class="tab-btn" onclick="filterCategory('TRAVEL')"><i class="fa-solid fa-plane-departure"></i> Travel & Tropical</button>
+            <button class="tab-btn" onclick="filterCategory('SENIOR')"><i class="fa-solid fa-user-doctor"></i> Senior Care 60+</button>
+        </div>
+
+        <!-- VACCINE CARDS GRID -->
+        <div class="vaccine-grid" id="vaccine-cards-grid">
+            <!-- Dynamic JavaScript Rendering -->
+        </div>
+    </section>
+
+    <!-- VACCINATION CENTERS & DOCTORS SEARCH -->
+    <section id="centers" class="section-container bg-light">
+        <div class="section-header text-center">
+            <h2><i class="fa-solid fa-hospital-user text-primary"></i> Vaccination Centers & Doctor Registry</h2>
+            <p>Locate accredited centers and view assigned medical practitioners.</p>
+        </div>
+        <div class="centers-grid" id="centers-cards-grid">
+            <!-- Dynamic JavaScript Rendering -->
+        </div>
+    </section>
+
+    <!-- PATIENT HUB / DASHBOARD (LOGGED IN USERS) -->
+    <section id="dashboard" class="section-container hidden">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-user-check text-emerald"></i> Patient Hub & My Certificates</h2>
+            <p>Manage your appointments, dose records, and download official government vaccination certificates.</p>
+        </div>
+
+        <div class="dashboard-tabs">
+            <button class="dash-tab active" onclick="showDashTab('bookings')"><i class="fa-solid fa-calendar-check"></i> My Appointments</button>
+            <button class="dash-tab" onclick="showDashTab('doses')"><i class="fa-solid fa-vial-circle-check"></i> Vaccination Dose History</button>
+            <button class="dash-tab" onclick="showDashTab('certificate')"><i class="fa-solid fa-file-certificate"></i> Digital Passport & PDF Certificate</button>
+        </div>
+
+        <div class="dash-content-area" id="dash-content-area">
+            <!-- Dynamic Dashboard Content -->
+        </div>
+    </section>
+
+    <!-- ADMIN COMMAND PANEL (STRICTLY HIDDEN FOR NORMAL USERS) -->
+    <section id="admin-panel" class="section-container admin-section hidden">
+        <div class="admin-header">
+            <h2><i class="fa-solid fa-user-gear"></i> VaxBook System Admin Command Center</h2>
+            <span class="badge badge-warning">ADMINISTRATOR ACCESS ACTIVE</span>
+        </div>
+
+        <div class="admin-nav-tabs">
+            <button class="admin-tab active" onclick="showAdminTab('overview')"><i class="fa-solid fa-chart-line"></i> System Overview</button>
+            <button class="admin-tab" onclick="showAdminTab('all-bookings')"><i class="fa-solid fa-calendar-check"></i> All Patient Bookings</button>
+            <button class="admin-tab" onclick="showAdminTab('manage-vaccines')"><i class="fa-solid fa-syringe"></i> Manage Vaccine Catalog</button>
+            <button class="admin-tab" onclick="showAdminTab('manage-centers')"><i class="fa-solid fa-hospital"></i> Manage Centers & Doctors</button>
+            <button class="admin-tab" onclick="showAdminTab('manage-vials')"><i class="fa-solid fa-boxes-packing"></i> Manage Vial Batches</button>
+        </div>
+
+        <div id="admin-tab-content" class="admin-tab-content">
+            <!-- Dynamic Admin Content -->
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODALS & POP-UPS AREA -->
+    <!-- ========================================================================= -->
+
+    <!-- ABOUT VACCINE DETAILED MODAL -->
+    <div id="modal-about-vaccine" class="modal-overlay hidden">
+        <div class="modal-card modal-lg">
+            <button class="modal-close-btn" onclick="closeModal('modal-about-vaccine')">&times;</button>
+            <div id="modal-about-vaccine-content">
+                <!-- Dynamic JavaScript Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MY USER PROFILE DETAILED MODAL -->
+    <div id="modal-user-profile" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-user-profile')">&times;</button>
+            <div id="modal-user-profile-content">
+                <!-- Dynamic JavaScript Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- UNIVERSAL VIAL VERIFICATION MOBILE & SCREEN POP-UP MODAL -->
+    <div id="modal-vial-verification" class="modal-overlay hidden">
+        <div class="modal-card modal-md animate-slide-up">
+            <button class="modal-close-btn" onclick="closeModal('modal-vial-verification')">&times;</button>
+            <div id="modal-vial-verification-content">
+                <!-- Dynamic JavaScript Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINTABLE BOTTLE QR CODE MODAL -->
+    <div id="modal-bottle-qr" class="modal-overlay hidden">
+        <div class="modal-card modal-sm text-center">
+            <button class="modal-close-btn" onclick="closeModal('modal-bottle-qr')">&times;</button>
+            <h3><i class="fa-solid fa-qrcode text-emerald"></i> Physical Bottle Label QR Code</h3>
+            <p class="text-muted" style="font-size:0.85rem; margin-bottom:12px;">Scan this QR code with any smartphone camera to verify live doses & authenticity.</p>
+            <div id="qrcode-canvas-container" style="display:flex; justify-content:center; padding:12px; background:white; border:1px solid #e2e8f0; border-radius:8px;"></div>
+            <h4 id="qr-vial-number" style="margin-top:10px; color:#0369a1;">VIL-COV-2026-001</h4>
+            <p id="qr-vial-name" class="text-muted" style="font-size:0.85rem;">Covishield Official Bottle</p>
+            <button class="btn btn-primary btn-block mt-2" onclick="closeModal('modal-bottle-qr'); renderVialPopUpModal(document.getElementById('qr-vial-number').innerText)">
+                <i class="fa-solid fa-circle-check"></i> Test Verification Pop-Up
+            </button>
+        </div>
+    </div>
+
+    <!-- SLOT BOOKING & PAYMENT CHECKOUT MODAL -->
+    <div id="modal-booking-checkout" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-booking-checkout')">&times;</button>
+            <div id="modal-booking-content">
+                <!-- Dynamic JavaScript Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADD VACCINATION CENTER -->
+    <div id="modal-admin-add-center" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-admin-add-center')">&times;</button>
+            <h3><i class="fa-solid fa-hospital text-primary"></i> Add New Vaccination Center</h3>
+            <form onsubmit="handleAdminAddCenter(event)" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Center Name</label>
+                    <input type="text" id="admin-center-name" required placeholder="e.g. City Civil SuperSpecialty Hospital">
+                </div>
+                <div class="form-group">
+                    <label>Location Address</label>
+                    <input type="text" id="admin-center-address" required placeholder="e.g. Block B, Metro Station Road, Sector 62, Noida">
+                </div>
+                <div class="form-group">
+                    <label>Daily Slot Capacity</label>
+                    <input type="number" id="admin-center-capacity" value="300" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3"><i class="fa-solid fa-plus-circle"></i> Save Center to Database</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADD DOCTOR / PRACTITIONER -->
+    <div id="modal-admin-add-doctor" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-admin-add-doctor')">&times;</button>
+            <h3><i class="fa-solid fa-user-doctor text-primary"></i> Add & Register Medical Practitioner</h3>
+            <form onsubmit="handleAdminAddDoctor(event)" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Doctor Full Name</label>
+                    <input type="text" id="admin-doctor-name" required placeholder="e.g. Dr. Rajesh Sharma">
+                </div>
+                <div class="form-group">
+                    <label>Medical Specialization</label>
+                    <input type="text" id="admin-doctor-spec" value="Chief Vaccine Immunization Specialist" required>
+                </div>
+                <div class="form-group">
+                    <label>Assigned Vaccination Center</label>
+                    <select id="admin-doctor-center-select" required>
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3"><i class="fa-solid fa-plus-circle"></i> Save & Register Doctor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADD BOTTLE VIAL BATCH -->
+    <div id="modal-admin-add-vial" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-admin-add-vial')">&times;</button>
+            <h3><i class="fa-solid fa-boxes-packing text-primary"></i> Register New Bottle Vial Batch</h3>
+            <form onsubmit="handleAdminAddVial(event)" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Vial Serial Number</label>
+                    <input type="text" id="admin-vial-number" required placeholder="e.g. VIAL-COVI-2026-905">
+                </div>
+                <div class="form-group">
+                    <label>Vaccine Product Formulation</label>
+                    <select id="admin-vial-vaccine-select" required>
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Initial Doses Capacity Per Vial</label>
+                    <input type="number" id="admin-vial-doses" value="10" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3"><i class="fa-solid fa-plus-circle"></i> Add Vial to Inventory</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADD VACCINE FORMULATION -->
+    <div id="modal-admin-add-vaccine" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-admin-add-vaccine')">&times;</button>
+            <h3><i class="fa-solid fa-syringe text-primary"></i> Add New Vaccine Product</h3>
+            <form onsubmit="handleAdminAddVaccine(event)" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Vaccine Name</label>
+                    <input type="text" id="admin-vac-name" required placeholder="e.g. Covaxin Booster Prime">
+                </div>
+                <div class="form-group">
+                    <label>Manufacturer / Lab</label>
+                    <input type="text" id="admin-vac-manuf" required placeholder="e.g. Bharat Biotech / Serum Institute">
+                </div>
+                <div class="form-group">
+                    <label>Target Age Range</label>
+                    <input type="text" id="admin-vac-age" value="18-80" required>
+                </div>
+                <div class="form-group">
+                    <label>Price (₹) (Put 0 for Free Govt Drive)</label>
+                    <input type="number" id="admin-vac-price" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Vaccine Image URL / Photo Link</label>
+                    <input type="url" id="admin-vac-image" placeholder="https://images.unsplash.com/photo-1618961734760-466979ce35b0?w=600">
+                </div>
+                <div class="form-group">
+                    <label>Doses Per Vial Bottle</label>
+                    <input type="number" id="admin-vac-doses" value="10" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3"><i class="fa-solid fa-plus-circle"></i> Add Vaccine Formulation to Catalog</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADMINISTER DOSE & ISSUE CERTIFICATE -->
+    <div id="modal-admin-administer-dose" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-admin-administer-dose')">&times;</button>
+            <h3><i class="fa-solid fa-syringe text-emerald"></i> Administer Dose & Generate Certificate</h3>
+            <form onsubmit="handleAdministerDoseSubmit(event)" style="margin-top:16px;">
+                <input type="hidden" id="dose-appt-id">
+                <input type="hidden" id="dose-patient-user-id">
+                <input type="hidden" id="dose-patient-email">
+                <input type="hidden" id="dose-patient-name">
+                <input type="hidden" id="dose-vaccine-name">
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:8px; margin-bottom:14px;">
+                    <p style="margin:2px 0;"><strong>Booking Ref:</strong> <code id="dose-display-ref">#APPT-2026-101</code></p>
+                    <p style="margin:2px 0;"><strong>Patient Name:</strong> <span id="dose-display-patient">Patient User</span></p>
+                    <p style="margin:2px 0;"><strong>Vaccine Name:</strong> <span id="dose-display-vaccine" class="text-primary font-bold">Covishield</span></p>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Active Bottle Vial Serial (Stock Consumption)</label>
+                    <select id="dose-vial-select" required>
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Dose Stage / Shot Number</label>
+                    <select id="dose-number-select" required>
+                        <option value="1">Dose 1 (1st Primary Shot - Partially Vaccinated)</option>
+                        <option value="2">Dose 2 (2nd Final Shot - Fully Vaccinated)</option>
+                        <option value="3">Dose 3 / Booster Shot (Precautionary Dose)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-emerald btn-block mt-3"><i class="fa-solid fa-check-double"></i> Confirm Dose Administered & Issue Certificate</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PATIENT MODAL: MY APPOINTMENT BOOKINGS & CERTIFICATE DOWNLOAD -->
+    <div id="modal-my-bookings" class="modal-overlay hidden">
+        <div class="modal-card modal-lg">
+            <button class="modal-close-btn" onclick="closeModal('modal-my-bookings')">&times;</button>
+            <div id="my-bookings-modal-content">
+                <div id="my-bookings-content">
+                    <!-- Dynamic Content via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAN AUTH MODAL (LOGIN / REGISTER / FORGOT PASSWORD) -->
+    <div id="modal-login" class="modal-overlay hidden">
+        <div class="modal-card modal-md">
+            <button class="modal-close-btn" onclick="closeModal('modal-login')">&times;</button>
+            <div class="auth-box">
+                <h3><i class="fa-solid fa-user-lock text-primary"></i> VaxBook Account Authentication</h3>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn active" id="btn-auth-login" onclick="toggleAuthMode('login')">Login</button>
+                    <button class="auth-tab-btn" id="btn-auth-register" onclick="toggleAuthMode('register')">Register</button>
+                </div>
+                
+                <!-- LOGIN FORM -->
+                <form id="form-login" onsubmit="handleLoginSubmit(event)">
+                    <div class="form-group">
+                        <label>Email Address / Mobile</label>
+                        <input type="text" id="login-username" required placeholder="user@vaxbook.com or 9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="pwd-input-wrapper">
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                            <button type="button" class="btn-pwd-toggle" onclick="togglePasswordVisibility('login-password', 'eye-icon-login')">
+                                <i id="eye-icon-login" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <div style="text-align:right; margin-top:6px;">
+                            <a href="javascript:void(0)" onclick="toggleAuthMode('forgot')" style="color:#0284c7; font-size:0.85rem; font-weight:600; text-decoration:none;">Forgot Password?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Login to VaxBook Account</button>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="form-register" style="display:none;" onsubmit="event.preventDefault(); handleRegisterSubmit();">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="reg-name" required placeholder="Enter Full Name (e.g. Rahul Sharma)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address <span id="badge-email-verified" class="badge badge-free hidden"><i class="fa-solid fa-circle-check"></i> VERIFIED</span></label>
+                        <div class="input-group">
+                            <input type="email" id="reg-email" required placeholder="Enter your email (e.g. patient@gmail.com)">
+                            <button type="button" id="btn-send-otp" class="btn btn-primary" onclick="sendRegistrationOtp()"><i class="fa-solid fa-paper-plane"></i> Send OTP</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="step-otp-verify">
+                        <label>Email Verification OTP Code (Default / Demo Code: 123456)</label>
+                        <div class="input-group">
+                            <input type="text" id="reg-otp-input" placeholder="Enter OTP (e.g. 123456)" value="123456" maxlength="6">
+                            <button type="button" id="btn-verify-otp" class="btn btn-emerald" onclick="verifyRegistrationOtp()"><i class="fa-solid fa-shield-check"></i> Verify OTP</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="text" id="reg-mobile" required placeholder="e.g. 9876543210" value="9876543210">
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Age</label>
+                            <input type="number" id="reg-age" value="25" min="1" max="120" required>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Gender</label>
+                            <select id="reg-gender" required>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Set Password</label>
+                        <div class="pwd-input-wrapper">
+                            <input type="password" id="reg-password" required placeholder="Create strong password">
+                            <button type="button" class="btn-pwd-toggle" onclick="togglePasswordVisibility('reg-password', 'eye-icon-reg')">
+                                <i id="eye-icon-reg" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-emerald btn-block"><i class="fa-solid fa-user-plus"></i> Create VaxBook Account</button>
+                </form>
+
+                <!-- FORGOT PASSWORD FORM -->
+                <div id="form-forgot" style="display:none;">
+                    <h4 style="margin-bottom:12px; color:#0369a1;"><i class="fa-solid fa-key"></i> Reset Your VaxBook Password</h4>
+                    <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">Enter your registered email address to receive a 6-digit password reset OTP code.</p>
+
+                    <div class="form-group">
+                        <label>Registered Email Address</label>
+                        <div class="input-group">
+                            <input type="email" id="forgot-email" placeholder="e.g. user@vaxbook.com">
+                            <button type="button" id="btn-send-forgot-otp" class="btn btn-primary" onclick="requestForgotPasswordOtp()"><i class="fa-solid fa-paper-plane"></i> Send OTP</button>
+                        </div>
+                    </div>
+
+                    <div id="step-forgot-verify" class="hidden">
+                        <div class="form-group">
+                            <label>Enter 6-Digit OTP Code</label>
+                            <input type="text" id="forgot-otp-input" placeholder="e.g. 123456" maxlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Set New Password</label>
+                            <div class="pwd-input-wrapper">
+                                <input type="password" id="forgot-new-password" placeholder="Enter new strong password">
+                                <button type="button" class="btn-pwd-toggle" onclick="togglePasswordVisibility('forgot-new-password', 'eye-icon-forgot')">
+                                    <i id="eye-icon-forgot" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-emerald btn-block" onclick="handleForgotPasswordSubmit()"><i class="fa-solid fa-check-circle"></i> Reset & Update Password</button>
+                    </div>
+
+                    <div style="margin-top:16px; text-align:center;">
+                        <a href="javascript:void(0)" onclick="toggleAuthMode('login')" style="color:#64748b; font-size:0.85rem; font-weight:600;">← Back to Login</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- OFFICIAL CUSTOM NOTIFICATION / ALERT MODAL -->
+    <div id="modal-custom-alert" class="modal-overlay hidden">
+        <div class="modal-card modal-sm text-center official-alert-card animate-slide-up">
+            <button class="modal-close-btn" onclick="closeCustomAlert()">&times;</button>
+            
+            <div class="official-alert-header">
+                <span class="official-badge"><i class="fa-solid fa-shield-halved"></i> VAXBOOK OFFICIAL NOTIFICATION</span>
+            </div>
+
+            <div id="custom-alert-icon-container" class="custom-alert-icon-wrapper">
+                <i id="custom-alert-icon" class="fa-solid fa-circle-check text-emerald fa-4x"></i>
+            </div>
+
+            <h3 id="custom-alert-title" class="custom-alert-title">Official System Notice</h3>
+            <p id="custom-alert-message" class="custom-alert-message">Action completed successfully.</p>
+            
+            <button id="custom-alert-btn" class="btn btn-emerald btn-block" onclick="closeCustomAlert()">
+                <i class="fa-solid fa-circle-check"></i> Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="main-footer" style="background:#0f172a; color:#f8fafc; margin-top:40px; border-top:3px solid #0284c7;">
+        <div class="footer-container" style="max-width:1100px; margin:0 auto; padding:35px 20px 25px 20px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:40px; text-align:left;">
+            
+            <!-- Left Side: Brand Info -->
+            <div class="footer-col" style="max-width:450px;">
+                <h3 style="color:#38bdf8; margin-bottom:10px; font-size:1.25rem; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-staff-snake"></i> VaxBook System</h3>
+                <p style="color:#94a3b8; font-size:0.88rem; line-height:1.6; margin:0;">
+                    Government Authorized National Digital Vaccination Booking & Certificate Infrastructure.
+                </p>
+            </div>
+
+            <!-- Right Side: Contact Us & Helpdesk Support -->
+            <div class="footer-col" style="max-width:450px;">
+                <h4 style="color:#f8fafc; margin-bottom:12px; font-size:1.05rem; border-bottom:2px solid #10b981; padding-bottom:6px; display:inline-block;"><i class="fa-solid fa-headset text-emerald"></i> Customer Support & Helpdesk</h4>
+                <div style="display:flex; flex-direction:column; gap:12px; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-envelope text-emerald" style="font-size:1.1rem; width:20px; color:#10b981;"></i>
+                        <div>
+                            <span style="color:#94a3b8; font-size:0.75rem; display:block;">Official Support Email</span>
+                            <a href="mailto:rizwankhan.officialit@gmail.com" style="color:#38bdf8; font-weight:600; text-decoration:none;">rizwankhan.officialit@gmail.com</a>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-phone-volume text-emerald" style="font-size:1.1rem; width:20px; color:#10b981;"></i>
+                        <div>
+                            <span style="color:#94a3b8; font-size:0.75rem; display:block;">National Helpline Number</span>
+                            <a href="tel:+916397939165" style="color:#10b981; font-weight:600; text-decoration:none;">+91 6397939165</a>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-clock text-emerald" style="font-size:1.1rem; width:20px; color:#10b981;"></i>
+                        <div>
+                            <span style="color:#94a3b8; font-size:0.75rem; display:block;">Support Working Hours</span>
+                            <span style="color:#cbd5e1; font-weight:500;">24x7 Helpline Support Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="border-top:1px solid #1e293b; padding:16px 20px; text-align:center; background:#0b1329;">
+            <p class="copyright" style="color:#64748b; font-size:0.8rem; margin:0;">
+                © 2026 VaxBook Enterprise Microservices Ecosystem | Ministry of Health & Family Welfare. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- App JavaScript File -->
+    <!-- Fallback: ensure login modal can open even if main JS fails -->
+    <script>
+        (function(){
+            function showLoginModal(){
+                try{
+                    var m = document.getElementById('modal-login');
+                    if(m) m.classList.remove('hidden');
+                }catch(e){}
+            }
+
+            if (typeof window.openLoginModal !== 'function') {
+                window.openLoginModal = showLoginModal;
+            }
+
+            document.addEventListener('DOMContentLoaded', function(){
+                var btn = document.getElementById('btn-login-modal');
+                if(!btn) return;
+                // Add a robust click listener so button opens modal even if inline handler fails
+                btn.addEventListener('click', function(e){
+                    try{
+                        if (typeof window.openLoginModal === 'function') {
+                            window.openLoginModal();
+                        } else {
+                            showLoginModal();
+                        }
+                    } catch(err){
+                        showLoginModal();
+                    }
+                });
+            });
+        })();
+    </script>
+    <script src="app.js?v=20260819_v999"></script>
+</body>
+</html>
