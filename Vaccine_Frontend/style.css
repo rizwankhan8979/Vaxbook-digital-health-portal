@@ -40,7 +40,7 @@ body {
     line-height: 1.5;
 }
 
-/* Announcement Bar */
+
 .announcement-bar {
     background: linear-gradient(90deg, #0369a1, #0284c7);
     color: var(--white);
@@ -50,7 +50,6 @@ body {
     font-weight: 500;
 }
 
-/* Main Header */
 .main-header {
     background-color: var(--white);
     border-bottom: 1px solid var(--border);
@@ -105,7 +104,6 @@ body {
     gap: 12px;
 }
 
-/* User Profile Dropdown Menu */
 .user-profile-dropdown-container {
     position: relative;
     display: inline-block;
@@ -199,7 +197,6 @@ body {
     color: #b91c1c;
 }
 
-/* Password Input Wrapper & Eye Toggle Button */
 .pwd-input-wrapper {
     position: relative;
     display: flex;
@@ -225,7 +222,6 @@ body {
     color: var(--primary);
 }
 
-/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -256,7 +252,6 @@ body {
 .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
 .btn-light { background: #e2e8f0; color: #334155; }
 
-/* Hero Section */
 .hero-section {
     background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
     color: var(--white);
@@ -281,7 +276,6 @@ body {
     margin-bottom: 28px;
 }
 
-/* Quick Search Card */
 .quick-search-card {
     background: var(--white);
     color: var(--dark);
@@ -313,7 +307,6 @@ body {
     color: var(--dark);
 }
 
-/* Section Containers */
 .section-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -333,7 +326,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* Universal Vial Verifier */
 .verifier-card {
     background: var(--gray-light);
     border: 2px dashed var(--primary);
@@ -380,7 +372,6 @@ body {
     color: var(--gray);
 }
 
-/* Category Tabs & Catalog */
 .category-tabs {
     display: flex;
     justify-content: center;
@@ -412,7 +403,6 @@ body {
     gap: 24px;
 }
 
-/* Vaccine Card */
 .vax-card {
     background: var(--white);
     border-radius: var(--radius-lg);
@@ -501,7 +491,6 @@ body {
     color: var(--emerald-dark);
 }
 
-/* Centers Grid */
 .centers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -537,7 +526,6 @@ body {
     margin-top: 8px;
 }
 
-/* Dashboard Tabs */
 .dashboard-tabs, .admin-nav-tabs {
     display: flex;
     gap: 12px;
@@ -561,7 +549,6 @@ body {
     border-bottom-color: var(--primary);
 }
 
-/* Modals */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -571,7 +558,7 @@ body {
     align-items: center;
     z-index: 1000;
     padding: 20px;
-    cursor: pointer; /* Click backdrop overlay to close modal */
+    cursor: pointer;
 }
 
 .modal-card {
@@ -582,7 +569,7 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--shadow-lg);
-    cursor: default; /* Reset cursor inside modal card */
+    cursor: default;
 }
 
 
@@ -608,7 +595,6 @@ body {
     z-index: 10;
 }
 
-/* Modal Pop-up Gauge & Metrics */
 .dose-gauge-container {
     background: #f1f5f9;
     border-radius: var(--radius);
@@ -630,7 +616,6 @@ body {
     transition: width 0.4s ease;
 }
 
-/* Form Styles */
 .form-group {
     margin-bottom: 14px;
 }
@@ -651,7 +636,7 @@ body {
     font-size: 0.95rem;
 }
 
-/* Utilities */
+
 .hidden { display: none !important; }
 .text-center { text-align: center; }
 .text-primary { color: var(--primary); }
@@ -687,7 +672,6 @@ body {
     font-size: 0.85rem;
 }
 
-/* Official Custom Notification Alert Modal */
 .official-alert-card {
     border-top: 5px solid var(--emerald);
     padding: 28px 24px 24px !important;
