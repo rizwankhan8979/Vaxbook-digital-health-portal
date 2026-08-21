@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VaxBook - Online Vaccination Booking & Certificate System</title>
     <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome Icons (Non-blocking) -->
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <!-- Non-blocking SDKs -->
+   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
 <body>
 
-    <!-- TOP ANNOUNCEMENT BAR -->
+
     <div class="announcement-bar">
         <span><i class="fa-solid fa-shield-halved"></i> Official National Vaccination & Digital Certificate Portal | Quick 1-Click Booking</span>
     </div>
@@ -65,19 +65,19 @@
                         </a>
                     </div>
                 </div>
-                <!-- ADMIN TOGGLE (STRICTLY HIDDEN FOR NORMAL USERS) -->
+               
                 <button id="btn-admin-toggle" class="btn btn-warning hidden" onclick="toggleAdminPanel()"><i class="fa-solid fa-user-shield"></i> Admin Command Panel</button>
             </div>
         </div>
     </header>
 
-    <!-- HERO BANNER & QUICK SEARCH -->
+    
     <section id="home" class="hero-section">
         <div class="hero-content">
             <h2>VaxBook: Online Booking & Certificate System</h2>
             <p>Search vaccination centers, book slots, verify authentic vaccine vials, and download your official government-aligned vaccination certificate.</p>
             
-            <!-- QUICK SLOT SEARCH WIDGET (DARK GLASSMORPHIC STYLING WITH AUTO-SUGGEST) -->
+            
             <div class="quick-search-card">
                 <h3><i class="fa-solid fa-magnifying-glass-location"></i> Quick Slot Search Near You</h3>
                 <div class="search-inputs-grid">
@@ -98,7 +98,7 @@
         </div>
     </section>
 
-    <!-- UNIVERSAL VIAL VERIFIER SEARCH BAR SECTION -->
+
     <section id="vial-verifier" class="section-container bg-light">
         <div class="section-header text-center">
             <h2><i class="fa-solid fa-shield-circle-check text-emerald"></i> Universal Vial Authenticity & Stock Verifier</h2>
@@ -113,14 +113,13 @@
         </div>
     </section>
 
-    <!-- E-COMMERCE STYLE VACCINE CATALOG CATEGORIES -->
     <section id="vaccines" class="section-container">
         <div class="section-header text-center">
             <h2><i class="fa-solid fa-layer-group text-primary"></i> National Immunization Catalog</h2>
             <p>Verified digital registry of government-approved vaccine formulations and health drives.</p>
         </div>
 
-        <!-- CATEGORY TABS -->
+    
         <div class="category-tabs" id="category-tabs-container">
             <button class="tab-btn active" onclick="filterCategory('ALL')"><i class="fa-solid fa-border-all"></i> All Vaccines</button>
             <button class="tab-btn" onclick="filterCategory('COVID')"><i class="fa-solid fa-virus-covid"></i> COVID-19</button>
@@ -130,24 +129,21 @@
             <button class="tab-btn" onclick="filterCategory('SENIOR')"><i class="fa-solid fa-user-doctor"></i> Senior Care 60+</button>
         </div>
 
-        <!-- VACCINE CARDS GRID -->
+       
         <div class="vaccine-grid" id="vaccine-cards-grid">
-            <!-- Dynamic JavaScript Rendering -->
         </div>
     </section>
 
-    <!-- VACCINATION CENTERS & DOCTORS SEARCH -->
+
     <section id="centers" class="section-container bg-light">
         <div class="section-header text-center">
             <h2><i class="fa-solid fa-hospital-user text-primary"></i> Vaccination Centers & Doctor Registry</h2>
             <p>Locate accredited centers and view assigned medical practitioners.</p>
         </div>
         <div class="centers-grid" id="centers-cards-grid">
-            <!-- Dynamic JavaScript Rendering -->
         </div>
     </section>
 
-    <!-- PATIENT HUB / DASHBOARD (LOGGED IN USERS) -->
     <section id="dashboard" class="section-container hidden">
         <div class="section-header">
             <h2><i class="fa-solid fa-user-check text-emerald"></i> Patient Hub & My Certificates</h2>
@@ -161,11 +157,10 @@
         </div>
 
         <div class="dash-content-area" id="dash-content-area">
-            <!-- Dynamic Dashboard Content -->
         </div>
     </section>
 
-    <!-- ADMIN COMMAND PANEL (STRICTLY HIDDEN FOR NORMAL USERS) -->
+    
     <section id="admin-panel" class="section-container admin-section hidden">
         <div class="admin-header">
             <h2><i class="fa-solid fa-user-gear"></i> VaxBook System Admin Command Center</h2>
@@ -181,45 +176,34 @@
         </div>
 
         <div id="admin-tab-content" class="admin-tab-content">
-            <!-- Dynamic Admin Content -->
         </div>
     </section>
 
-    <!-- ========================================================================= -->
-    <!-- MODALS & POP-UPS AREA -->
-    <!-- ========================================================================= -->
-
-    <!-- ABOUT VACCINE DETAILED MODAL -->
     <div id="modal-about-vaccine" class="modal-overlay hidden">
         <div class="modal-card modal-lg">
             <button class="modal-close-btn" onclick="closeModal('modal-about-vaccine')">&times;</button>
             <div id="modal-about-vaccine-content">
-                <!-- Dynamic JavaScript Content -->
             </div>
         </div>
     </div>
 
-    <!-- MY USER PROFILE DETAILED MODAL -->
+
     <div id="modal-user-profile" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-user-profile')">&times;</button>
             <div id="modal-user-profile-content">
-                <!-- Dynamic JavaScript Content -->
             </div>
         </div>
     </div>
 
-    <!-- UNIVERSAL VIAL VERIFICATION MOBILE & SCREEN POP-UP MODAL -->
     <div id="modal-vial-verification" class="modal-overlay hidden">
         <div class="modal-card modal-md animate-slide-up">
             <button class="modal-close-btn" onclick="closeModal('modal-vial-verification')">&times;</button>
             <div id="modal-vial-verification-content">
-                <!-- Dynamic JavaScript Content -->
             </div>
         </div>
     </div>
 
-    <!-- PRINTABLE BOTTLE QR CODE MODAL -->
     <div id="modal-bottle-qr" class="modal-overlay hidden">
         <div class="modal-card modal-sm text-center">
             <button class="modal-close-btn" onclick="closeModal('modal-bottle-qr')">&times;</button>
@@ -234,17 +218,14 @@
         </div>
     </div>
 
-    <!-- SLOT BOOKING & PAYMENT CHECKOUT MODAL -->
     <div id="modal-booking-checkout" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-booking-checkout')">&times;</button>
             <div id="modal-booking-content">
-                <!-- Dynamic JavaScript Content -->
             </div>
         </div>
     </div>
 
-    <!-- ADMIN MODAL: ADD VACCINATION CENTER -->
     <div id="modal-admin-add-center" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-admin-add-center')">&times;</button>
@@ -267,7 +248,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODAL: ADD DOCTOR / PRACTITIONER -->
     <div id="modal-admin-add-doctor" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-admin-add-doctor')">&times;</button>
@@ -284,7 +264,6 @@
                 <div class="form-group">
                     <label>Assigned Vaccination Center</label>
                     <select id="admin-doctor-center-select" required>
-                        <!-- Dynamic Options -->
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block mt-3"><i class="fa-solid fa-plus-circle"></i> Save & Register Doctor</button>
@@ -292,7 +271,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODAL: ADD BOTTLE VIAL BATCH -->
     <div id="modal-admin-add-vial" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-admin-add-vial')">&times;</button>
@@ -305,7 +283,6 @@
                 <div class="form-group">
                     <label>Vaccine Product Formulation</label>
                     <select id="admin-vial-vaccine-select" required>
-                        <!-- Dynamic Options -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -317,7 +294,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODAL: ADD VACCINE FORMULATION -->
     <div id="modal-admin-add-vaccine" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-admin-add-vaccine')">&times;</button>
@@ -352,7 +328,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODAL: ADMINISTER DOSE & ISSUE CERTIFICATE -->
     <div id="modal-admin-administer-dose" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-admin-administer-dose')">&times;</button>
@@ -373,7 +348,6 @@
                 <div class="form-group">
                     <label>Select Active Bottle Vial Serial (Stock Consumption)</label>
                     <select id="dose-vial-select" required>
-                        <!-- Dynamic Options -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -390,19 +364,16 @@
         </div>
     </div>
 
-    <!-- PATIENT MODAL: MY APPOINTMENT BOOKINGS & CERTIFICATE DOWNLOAD -->
     <div id="modal-my-bookings" class="modal-overlay hidden">
         <div class="modal-card modal-lg">
             <button class="modal-close-btn" onclick="closeModal('modal-my-bookings')">&times;</button>
             <div id="my-bookings-modal-content">
                 <div id="my-bookings-content">
-                    <!-- Dynamic Content via JavaScript -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CLEAN AUTH MODAL (LOGIN / REGISTER / FORGOT PASSWORD) -->
     <div id="modal-login" class="modal-overlay hidden">
         <div class="modal-card modal-md">
             <button class="modal-close-btn" onclick="closeModal('modal-login')">&times;</button>
@@ -414,7 +385,6 @@
                     <button class="auth-tab-btn" id="btn-auth-register" onclick="toggleAuthMode('register')">Register</button>
                 </div>
                 
-                <!-- LOGIN FORM -->
                 <form id="form-login" onsubmit="handleLoginSubmit(event)">
                     <div class="form-group">
                         <label>Email Address / Mobile</label>
@@ -435,7 +405,6 @@
                     <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Login to VaxBook Account</button>
                 </form>
 
-                <!-- REGISTER FORM -->
                 <form id="form-register" style="display:none;" onsubmit="event.preventDefault(); handleRegisterSubmit();">
                     <div class="form-group">
                         <label>Full Name</label>
@@ -491,7 +460,6 @@
                     <button type="submit" class="btn btn-emerald btn-block"><i class="fa-solid fa-user-plus"></i> Create VaxBook Account</button>
                 </form>
 
-                <!-- FORGOT PASSWORD FORM -->
                 <div id="form-forgot" style="display:none;">
                     <h4 style="margin-bottom:12px; color:#0369a1;"><i class="fa-solid fa-key"></i> Reset Your VaxBook Password</h4>
                     <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">Enter your registered email address to receive a 6-digit password reset OTP code.</p>
@@ -529,7 +497,6 @@
             </div>
         </div>
     </div>
-    <!-- OFFICIAL CUSTOM NOTIFICATION / ALERT MODAL -->
     <div id="modal-custom-alert" class="modal-overlay hidden">
         <div class="modal-card modal-sm text-center official-alert-card animate-slide-up">
             <button class="modal-close-btn" onclick="closeCustomAlert()">&times;</button>
@@ -551,11 +518,9 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="main-footer" style="background:#0f172a; color:#f8fafc; margin-top:40px; border-top:3px solid #0284c7;">
+]    <footer class="main-footer" style="background:#0f172a; color:#f8fafc; margin-top:40px; border-top:3px solid #0284c7;">
         <div class="footer-container" style="max-width:1100px; margin:0 auto; padding:35px 20px 25px 20px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:40px; text-align:left;">
             
-            <!-- Left Side: Brand Info -->
             <div class="footer-col" style="max-width:450px;">
                 <h3 style="color:#38bdf8; margin-bottom:10px; font-size:1.25rem; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-staff-snake"></i> VaxBook System</h3>
                 <p style="color:#94a3b8; font-size:0.88rem; line-height:1.6; margin:0;">
@@ -563,7 +528,6 @@
                 </p>
             </div>
 
-            <!-- Right Side: Contact Us & Helpdesk Support -->
             <div class="footer-col" style="max-width:450px;">
                 <h4 style="color:#f8fafc; margin-bottom:12px; font-size:1.05rem; border-bottom:2px solid #10b981; padding-bottom:6px; display:inline-block;"><i class="fa-solid fa-headset text-emerald"></i> Customer Support & Helpdesk</h4>
                 <div style="display:flex; flex-direction:column; gap:12px; font-size:0.85rem;">
@@ -600,8 +564,6 @@
         </div>
     </footer>
 
-    <!-- App JavaScript File -->
-    <!-- Fallback: ensure login modal can open even if main JS fails -->
     <script>
         (function(){
             function showLoginModal(){
